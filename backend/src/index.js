@@ -6,16 +6,39 @@ import a3d from './utils/db.js';
 import { router } from './routes/userRoutes.js';
 import { propertyRouter } from './routes/propertyRouter.js';
 import { bookingRouter } from './routes/bookingRouter.js';
-dotenv['config']();
+
+dotenv.config();
+
 const app = a3a();
-app['use'](a3b({
-    'origin': process['env']['ORIGIN_ACCESS_URL'],
-    'credentials': !![]
-})), app['use'](a3a['json']({ 'limit': '100mb' })), app['use'](a3a['urlencoded']({
-    'limit': '100mb',
-    'extended': !![]
-})), app['use'](a3c());
-const port = process['env']['PORT'] || 0x1f91;
-a3d(), app['use']('/api/v1/rent/user', router), app['use']('/api/v1/rent/listing', propertyRouter), app['use']('/api/v1/rent/user/booking', bookingRouter), app['listen'](port, () => {
-    console['log']('App\x20running\x20on\x20port:\x20' + port);
-});
+
+// CORS for frontend
+app.use(a3b({
+    origin: process.env.ORIGIN_ACCESS_URL,
+    credentials: true
+}));
+
+// Body parsers
+app.use(a3a.json({ limit: '100mb' }));
+app.use(a3a.urlencoded({ limit: '100mb', extended: true }));
+
+// Cookie parser
+app.use(a3c());
+
+// Connect to MongoDB
+a3d();
+
+// Routes
+app.use('/api/v1/rent/user', router);
+app.use('/api/v1/rent/listing', propertyRouter);
+app.use('/api/v1/rent/user/booking', bookingRouter);
+
+// Export app for Vercel
+export default app;
+
+// Only listen locally (for development)
+if (process.env.NODE_ENV !== 'production') {
+    const port = process.env.PORT || 8081;
+    app.listen(port, () => {
+        console.log('App running on port: ' + port);
+    });
+}
